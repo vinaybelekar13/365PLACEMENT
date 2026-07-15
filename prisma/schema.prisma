@@ -23,3 +23,17 @@ model Topic {
   dayId   Int
   day     Day     @relation(fields: [dayId], references: [id], onDelete: Cascade)
 }
+
+model Role {
+  id     Int         @id @default(autoincrement())
+  name   String      @unique
+  topics RoleTopic[]
+}
+
+model RoleTopic {
+  id     Int     @id @default(autoincrement())
+  text   String
+  done   Boolean @default(false)
+  roleId Int
+  role   Role    @relation(fields: [roleId], references: [id], onDelete: Cascade)
+}

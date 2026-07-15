@@ -5,6 +5,7 @@ const FILTERS = [
   { id: 'pending', label: 'Pending' },
   { id: 'today',   label: 'Today' },
   { id: 'done',    label: 'Done' },
+  { id: 'roles',   label: 'Role-wise Prep' },
 ];
 
 export default function FilterBar({ filter, setFilter, search, setSearch }) {

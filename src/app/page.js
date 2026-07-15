@@ -4,9 +4,11 @@ import { useState, useEffect } from 'react';
 import DayCard from './components/DayCard/DayCard';
 import StatsBar from './components/StatsBar/StatsBar';
 import FilterBar from './components/FilterBar/FilterBar';
+import RoleSection from './components/RoleSection/RoleSection';
 
 export default function Home() {
   const [days, setDays] = useState([]);
+  const [roles, setRoles] = useState([]);
   const [filter, setFilter] = useState('all');
   const [search, setSearch] = useState('');
   const [expandedDay, setExpandedDay] = useState(null);
@@ -72,6 +74,12 @@ export default function Home() {
     });
   }, []);
 
+  useEffect(() => {
+    fetch('/api/roles')
+      .then(r => r.json())
+      .then(data => setRoles(Array.isArray(data) ? data : []));
+  }, []);
+
   const authHeaders = () => ({ 'Content-Type': 'application/json', 'x-admin-password': adminPassword });
 
   const handleUnauthorized = () => {
@@ -119,6 +127,50 @@ export default function Home() {
     const res = await fetch(`/api/days/${dayId}`, { method: 'PATCH', headers: authHeaders(), body: JSON.stringify({ note }) });
     if (res.status === 401) return handleUnauthorized();
     setDays(prev => prev.map(d => d.id === dayId ? { ...d, note } : d));
+  };
+
+  // ---- Role handlers ----
+
+  const addRole = async (name) => {
+    const res = await fetch('/api/roles', { method: 'POST', headers: authHeaders(), body: JSON.stringify({ name }) });
+    if (res.status === 401) return handleUnauthorized();
+    const role = await res.json();
+    setRoles(prev => [...prev, { ...role, topics: [] }]);
+  };
+
+  const deleteRole = async (roleId) => {
+    const res = await fetch(`/api/roles/${roleId}`, { method: 'DELETE', headers: authHeaders() });
+    if (res.status === 401) return handleUnauthorized();
+    setRoles(prev => prev.filter(r => r.id !== roleId));
+  };
+
+  const addRoleTopic = async (roleId, text) => {
+    const res = await fetch(`/api/roles/${roleId}/topics`, { method: 'POST', headers: authHeaders(), body: JSON.stringify({ text }) });
+    if (res.status === 401) return handleUnauthorized();
+    const topic = await res.json();
+    setRoles(prev => prev.map(r => r.id === roleId ? { ...r, topics: [...r.topics, topic] } : r));
+  };
+
+  const toggleRoleTopic = async (roleId, topicId) => {
+    const role = roles.find(r => r.id === roleId);
+    const topic = role.topics.find(t => t.id === topicId);
+    const res = await fetch(`/api/role-topics/${topicId}`, { method: 'PATCH', headers: authHeaders(), body: JSON.stringify({ done: !topic.done }) });
+    if (res.status === 401) return handleUnauthorized();
+    const updated = await res.json();
+    setRoles(prev => prev.map(r => r.id === roleId ? { ...r, topics: r.topics.map(t => t.id === topicId ? updated : t) } : r));
+  };
+
+  const deleteRoleTopic = async (roleId, topicId) => {
+    const res = await fetch(`/api/role-topics/${topicId}`, { method: 'DELETE', headers: authHeaders() });
+    if (res.status === 401) return handleUnauthorized();
+    setRoles(prev => prev.map(r => r.id === roleId ? { ...r, topics: r.topics.filter(t => t.id !== topicId) } : r));
+  };
+
+  const editRoleTopic = async (roleId, topicId, newText) => {
+    const res = await fetch(`/api/role-topics/${topicId}`, { method: 'PATCH', headers: authHeaders(), body: JSON.stringify({ text: newText }) });
+    if (res.status === 401) return handleUnauthorized();
+    const updated = await res.json();
+    setRoles(prev => prev.map(r => r.id === roleId ? { ...r, topics: r.topics.map(t => t.id === topicId ? updated : t) } : r));
   };
 
   if (loading) {
@@ -213,23 +265,36 @@ export default function Home() {
           <FilterBar filter={filter} setFilter={setFilter} search={search} setSearch={setSearch} />
         </div>
 
-        {!isAdmin && (
-          <div className="mt-4 bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-lg px-4 py-2 text-xs text-[var(--text-muted)]">
-            👀 You're viewing in read-only mode. Only the admin can add or update tasks.
-          </div>
-        )}
-
-        <div className="mt-5 space-y-2">
-          {filteredDays.map(day => (
-            <DayCard
-              key={day.id} day={day} isToday={day.date === today}
-              expanded={expandedDay === day.id} isAdmin={isAdmin}
-              onToggleExpand={() => setExpandedDay(expandedDay === day.id ? null : day.id)}
-              onAddTopic={addTopic} onToggleTopic={toggleTopic} onDeleteTopic={deleteTopic}
-              onEditTopic={editTopic} onUpdateTag={updateTopicTag} onAddNote={addNote}
+        {filter === 'roles' ? (
+          <div className="mt-5">
+            <RoleSection
+              roles={roles} isAdmin={isAdmin}
+              onAddRole={addRole} onDeleteRole={deleteRole}
+              onAddTopic={addRoleTopic} onToggleTopic={toggleRoleTopic}
+              onDeleteTopic={deleteRoleTopic} onEditTopic={editRoleTopic}
             />
-          ))}
-        </div>
+          </div>
+        ) : (
+          <>
+            {!isAdmin && (
+              <div className="mt-4 bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-lg px-4 py-2 text-xs text-[var(--text-muted)]">
+                👀 You're viewing in read-only mode. Only the admin can add or update tasks.
+              </div>
+            )}
+
+            <div className="mt-5 space-y-2">
+              {filteredDays.map(day => (
+                <DayCard
+                  key={day.id} day={day} isToday={day.date === today}
+                  expanded={expandedDay === day.id} isAdmin={isAdmin}
+                  onToggleExpand={() => setExpandedDay(expandedDay === day.id ? null : day.id)}
+                  onAddTopic={addTopic} onToggleTopic={toggleTopic} onDeleteTopic={deleteTopic}
+                  onEditTopic={editTopic} onUpdateTag={updateTopicTag} onAddNote={addNote}
+                />
+              ))}
+            </div>
+          </>
+        )}
       </div>
 
       {/* Admin Login Modal */}
