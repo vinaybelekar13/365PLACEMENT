@@ -1,3 +1,4 @@
+// D:\roadtooffer\src\app\api\topics\[id]\route.js
 import { prisma } from '@/lib/prisma';
 import { NextResponse } from 'next/server';
 import { checkAdmin } from '@/lib/auth';

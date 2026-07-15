@@ -1,3 +1,5 @@
+// D:\roadtooffer\src\app\api\days\route.js
+
 import { prisma } from '@/lib/prisma';
 import { NextResponse } from 'next/server';
 
