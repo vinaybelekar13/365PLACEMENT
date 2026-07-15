@@ -3,13 +3,15 @@
 import { useState } from 'react';
 
 export default function RoleSection({
-  roles, isAdmin, onAddRole, onDeleteRole, onAddTopic, onToggleTopic, onDeleteTopic, onEditTopic,
+  roles = [], isAdmin, onAddRole, onDeleteRole, onAddTopic, onToggleTopic, onDeleteTopic, onEditTopic,
 }) {
   const [activeRoleId, setActiveRoleId] = useState(roles[0]?.id ?? null);
   const [newRoleName, setNewRoleName] = useState('');
   const [newTopic, setNewTopic] = useState('');
   const [editingTopicId, setEditingTopicId] = useState(null);
   const [editText, setEditText] = useState('');
+  const [confirmDeleteRole, setConfirmDeleteRole] = useState(null);   // { id, name, topicCount } | null
+  const [confirmDeleteTopic, setConfirmDeleteTopic] = useState(null); // { roleId, topicId, text } | null
 
   const activeRole = roles.find(r => r.id === activeRoleId) || roles[0] || null;
 
@@ -39,8 +41,32 @@ export default function RoleSection({
   };
   const cancelEdit = () => { setEditingTopicId(null); setEditText(''); };
 
+  const requestDeleteRole = (role) => {
+    setConfirmDeleteRole({ id: role.id, name: role.name, topicCount: role.topics.length });
+  };
+
+  const confirmDeleteRoleAction = () => {
+    if (!confirmDeleteRole) return;
+    onDeleteRole(confirmDeleteRole.id);
+    if (activeRoleId === confirmDeleteRole.id) {
+      const remaining = roles.filter(r => r.id !== confirmDeleteRole.id);
+      setActiveRoleId(remaining[0]?.id ?? null);
+    }
+    setConfirmDeleteRole(null);
+  };
+
+  const requestDeleteTopic = (roleId, topic) => {
+    setConfirmDeleteTopic({ roleId, topicId: topic.id, text: topic.text });
+  };
+
+  const confirmDeleteTopicAction = () => {
+    if (!confirmDeleteTopic) return;
+    onDeleteTopic(confirmDeleteTopic.roleId, confirmDeleteTopic.topicId);
+    setConfirmDeleteTopic(null);
+  };
+
   return (
-    <div className="mt-8">
+    <div className="mt-2">
       <div className="flex items-center justify-between mb-3">
         <h2 className="text-sm font-bold text-[var(--accent-blue)] tracking-tight">Role-wise Prep</h2>
       </div>
@@ -73,7 +99,7 @@ export default function RoleSection({
               )}
               {isAdmin && (
                 <span
-                  onClick={(e) => { e.stopPropagation(); onDeleteRole(role.id); }}
+                  onClick={(e) => { e.stopPropagation(); requestDeleteRole(role); }}
                   className={`opacity-0 group-hover:opacity-100 transition-opacity ${active ? 'text-white/80 hover:text-white' : 'text-[var(--text-faint)] hover:text-[#f78166]'}`}
                 >
                   ✕
@@ -192,7 +218,7 @@ export default function RoleSection({
                 )}
 
                 {isAdmin && (
-                  <button onClick={() => onDeleteTopic(activeRole.id, topic.id)} className="text-[var(--text-faint)] hover:text-[#f78166] text-xs opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button onClick={() => requestDeleteTopic(activeRole.id, topic)} className="text-[var(--text-faint)] hover:text-[#f78166] text-xs opacity-0 group-hover:opacity-100 transition-opacity">
                     ✕
                   </button>
                 )}
@@ -213,6 +239,72 @@ export default function RoleSection({
               </button>
             </div>
           )}
+        </div>
+      )}
+
+      {/* Delete role confirmation modal */}
+      {confirmDeleteRole && (
+        <div
+          className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 px-4"
+          onClick={() => setConfirmDeleteRole(null)}
+        >
+          <div
+            className="bg-[var(--bg-surface)] border border-[var(--border-default)] rounded-lg p-5 w-full max-w-sm shadow-2xl"
+            onClick={e => e.stopPropagation()}
+          >
+            <h2 className="text-sm font-bold text-[#f78166] mb-1">⚠ Delete "{confirmDeleteRole.name}"?</h2>
+            <p className="text-xs text-[var(--text-muted)] mb-4">
+              This will permanently delete this role{confirmDeleteRole.topicCount > 0
+                ? <> and all <span className="text-[var(--text-primary)] font-semibold">{confirmDeleteRole.topicCount}</span> topic{confirmDeleteRole.topicCount === 1 ? '' : 's'} under it</>
+                : null}. This action cannot be undone.
+            </p>
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => setConfirmDeleteRole(null)}
+                className="text-xs px-3 py-1.5 rounded border border-[var(--border-subtle)] text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:border-[var(--border-default)] transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmDeleteRoleAction}
+                className="text-xs px-3 py-1.5 rounded bg-[#f78166] hover:opacity-90 text-white transition-colors"
+              >
+                Delete role
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete topic confirmation modal */}
+      {confirmDeleteTopic && (
+        <div
+          className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 px-4"
+          onClick={() => setConfirmDeleteTopic(null)}
+        >
+          <div
+            className="bg-[var(--bg-surface)] border border-[var(--border-default)] rounded-lg p-5 w-full max-w-sm shadow-2xl"
+            onClick={e => e.stopPropagation()}
+          >
+            <h2 className="text-sm font-bold text-[#f78166] mb-1">⚠ Delete this topic?</h2>
+            <p className="text-xs text-[var(--text-muted)] mb-4">
+              "<span className="text-[var(--text-primary)]">{confirmDeleteTopic.text}</span>" will be permanently removed. This action cannot be undone.
+            </p>
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => setConfirmDeleteTopic(null)}
+                className="text-xs px-3 py-1.5 rounded border border-[var(--border-subtle)] text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:border-[var(--border-default)] transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmDeleteTopicAction}
+                className="text-xs px-3 py-1.5 rounded bg-[#f78166] hover:opacity-90 text-white transition-colors"
+              >
+                Delete topic
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
