@@ -2,9 +2,7 @@
 
 const FILTERS = [
   { id: 'all',     label: 'All Days' },
-  { id: 'pending', label: 'Pending' },
   { id: 'today',   label: 'Today' },
-  { id: 'done',    label: 'Done' },
   { id: 'roles',   label: 'Role-wise Prep' },
 ];
 
