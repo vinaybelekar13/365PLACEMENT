@@ -176,7 +176,10 @@ export default function Home() {
   if (loading) {
     return (
       <main className="min-h-screen bg-[var(--bg-base)] text-[var(--text-muted)] flex items-center justify-center font-mono text-sm">
-        Loading...
+        <span className="inline-flex items-center gap-2">
+          <span className="w-2 h-2 rounded-full bg-[var(--text-muted)] animate-pulse" />
+          Loading roadmap…
+        </span>
       </main>
     );
   }
@@ -203,53 +206,56 @@ export default function Home() {
   });
 
   const LEGEND = [
-    { label: 'DSA', color: '#f78166' },
-    { label: 'DA', color: '#d2a8ff' },
-    { label: 'GenAI', color: '#79c0ff' },
-    { label: 'Backend', color: '#56d364' },
-    { label: 'Core', color: '#e3b341' },
-    { label: 'Aptitude', color: '#ff7b72' },
+    { label: 'DSA',      pattern: 'tag-dsa' },
+    { label: 'DA',       pattern: 'tag-da' },
+    { label: 'GenAI',    pattern: 'tag-genai' },
+    { label: 'Backend',  pattern: 'tag-backend' },
+    { label: 'Core',     pattern: 'tag-core' },
+    { label: 'Aptitude', pattern: 'tag-aptitude' },
   ];
 
   return (
     <main className="min-h-screen bg-[var(--bg-base)] text-[var(--text-primary)] font-mono">
-      <div className="border-b border-[var(--border-subtle)] px-4 py-4 sm:px-8">
-        <div className="max-w-6xl mx-auto flex items-start justify-between flex-wrap gap-3">
+      <div className="border-b border-[var(--border-subtle)] px-4 py-5 sm:px-8">
+        <div className="max-w-6xl mx-auto flex items-start justify-between flex-wrap gap-4">
           <div>
-            <h1 className="text-xl font-bold tracking-tight text-[var(--accent-blue)]">Road to Offer</h1>
-            <p className="text-xs text-[var(--text-muted)] mt-0.5">
+            
+            <h1 className="font-display text-2xl font-bold tracking-tight text-[var(--text-primary)] mt-1">Road to Offer</h1>
+            <p className="text-xs text-[var(--text-muted)] mt-1">
               14 Jun → 28 Jul 2026 &nbsp;·&nbsp; 45 days &nbsp;·&nbsp; Day {Math.min(daysPassed + 1, 45)} of 45
             </p>
           </div>
           <div className="flex gap-2 flex-wrap items-center">
-            {LEGEND.map(({ label, color }) => (
-              <span key={label} className="bg-[var(--bg-surface)] border border-[var(--border-subtle)] px-2 py-1 rounded text-xs text-[var(--text-muted)] flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: color }} />
-                {label}
-              </span>
-            ))}
+            <div className="flex gap-1.5 flex-wrap items-center border border-[var(--border-subtle)] rounded px-2 py-1.5 bg-[var(--bg-surface)]">
+              {LEGEND.map(({ label }) => (
+                <span key={label} className="px-1.5 py-0.5 rounded text-[10px] text-[var(--text-muted)]">
+                  {label}
+                </span>
+              ))}
+            </div>
             {isAdmin ? (
               <button
                 onClick={handleAdminLogout}
-                className="bg-[var(--accent-green)]/10 border border-[var(--accent-green)] px-2 py-1 rounded text-xs text-[var(--accent-green-text)] hover:bg-[var(--accent-green)]/20 transition-colors"
+                className="border border-[var(--border-strong)] px-2.5 py-1.5 rounded text-xs text-[var(--text-primary)] hover:bg-[var(--bg-elevated)] transition-colors flex items-center gap-1.5"
                 title="Click to log out of admin mode"
               >
-                ● Admin
+                <span className="w-1.5 h-1.5 rounded-full bg-[var(--text-primary)]" />
+                Admin
               </button>
             ) : (
               <button
                 onClick={openLoginModal}
-                className="bg-[var(--bg-surface)] border border-[var(--border-subtle)] px-2 py-1 rounded text-xs text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:border-[var(--border-default)] transition-colors"
+                className="bg-[var(--bg-surface)] border border-[var(--border-subtle)] px-2.5 py-1.5 rounded text-xs text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:border-[var(--border-default)] transition-colors"
               >
                 Admin Login
               </button>
             )}
             <button
               onClick={toggleTheme}
-              className="bg-[var(--bg-surface)] border border-[var(--border-subtle)] px-2 py-1 rounded text-xs text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:border-[var(--border-default)] transition-colors"
+              className="bg-[var(--bg-surface)] border border-[var(--border-subtle)] px-2.5 py-1.5 rounded text-xs text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:border-[var(--border-default)] transition-colors"
               title="Toggle theme"
             >
-              {theme === 'dark' ? '☀ Light' : '☾ Dark'}
+              {theme === 'dark' ? '○ Light' : '● Dark'}
             </button>
           </div>
         </div>
@@ -277,13 +283,13 @@ export default function Home() {
         ) : (
           <>
             {!isAdmin && (
-              <div className="mt-4 bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-lg px-4 py-2 text-xs text-[var(--text-muted)]">
-                👀 You're viewing in read-only mode. Only the admin can add or update tasks.
+              <div className="mt-4 bg-[var(--bg-surface)] border border-dashed border-[var(--border-default)] rounded-lg px-4 py-2 text-xs text-[var(--text-muted)]">
+                Viewing in read-only mode — only the admin can add or update tasks.
               </div>
             )}
 
             <div className="mt-5 space-y-2">
-              {filteredDays.map(day => (
+              {[...filteredDays].reverse().map(day => (
                 <DayCard
                   key={day.id} day={day} isToday={day.date === today}
                   expanded={expandedDay === day.id} isAdmin={isAdmin}
@@ -299,9 +305,9 @@ export default function Home() {
 
       {/* Admin Login Modal */}
       {showLoginModal && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 px-4" onClick={() => setShowLoginModal(false)}>
-          <div className="bg-[var(--bg-surface)] border border-[var(--border-default)] rounded-lg p-5 w-full max-w-sm shadow-2xl" onClick={e => e.stopPropagation()}>
-            <h2 className="text-sm font-bold text-[var(--text-primary)] mb-1">Admin Login</h2>
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 px-4" onClick={() => setShowLoginModal(false)}>
+          <div className="bg-[var(--bg-surface)] border border-[var(--border-strong)] rounded-lg p-5 w-full max-w-sm shadow-2xl" onClick={e => e.stopPropagation()}>
+            <h2 className="font-display text-sm font-bold text-[var(--text-primary)] mb-1">Admin Login</h2>
             <p className="text-xs text-[var(--text-muted)] mb-3">Enter the admin password to enable editing.</p>
             <input
               type="password" autoFocus value={loginInput}
@@ -309,15 +315,15 @@ export default function Home() {
               onKeyDown={e => e.key === 'Enter' && submitLogin()}
               placeholder="Password"
               className={`w-full bg-[var(--bg-base)] border rounded px-3 py-2 text-sm text-[var(--text-primary)] placeholder-[var(--text-faint)] focus:outline-none mb-2 ${
-                loginError ? 'border-[#f78166]' : 'border-[var(--border-default)] focus:border-[var(--accent-blue)]'
+                loginError ? 'border-[var(--text-primary)]' : 'border-[var(--border-default)] focus:border-[var(--text-primary)]'
               }`}
             />
-            {loginError && <p className="text-xs text-[#f78166] mb-3">⚠ {loginError}</p>}
+            {loginError && <p className="text-xs text-[var(--text-primary)] mb-3">⚠ {loginError}</p>}
             <div className={`flex justify-end gap-2 ${loginError ? '' : 'mt-3'}`}>
               <button onClick={() => setShowLoginModal(false)} className="text-xs px-3 py-1.5 rounded border border-[var(--border-subtle)] text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:border-[var(--border-default)] transition-colors">
                 Cancel
               </button>
-              <button onClick={submitLogin} disabled={loggingIn} className="text-xs px-3 py-1.5 rounded bg-[var(--accent-green)] hover:opacity-90 disabled:opacity-50 text-white transition-colors">
+              <button onClick={submitLogin} disabled={loggingIn} className="text-xs px-3 py-1.5 rounded ink-fill disabled:opacity-50 hover:opacity-85 transition-opacity">
                 {loggingIn ? 'Checking...' : 'Login'}
               </button>
             </div>
@@ -327,9 +333,9 @@ export default function Home() {
 
       {/* Popup Modal */}
       {popup && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 px-4" onClick={() => setPopup(null)}>
-          <div className="bg-[var(--bg-surface)] border border-[var(--border-default)] rounded-lg p-5 w-full max-w-sm shadow-2xl" onClick={e => e.stopPropagation()}>
-            <h2 className="text-sm font-bold text-[var(--text-primary)] mb-1">{popup.title}</h2>
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 px-4" onClick={() => setPopup(null)}>
+          <div className="bg-[var(--bg-surface)] border border-[var(--border-strong)] rounded-lg p-5 w-full max-w-sm shadow-2xl" onClick={e => e.stopPropagation()}>
+            <h2 className="font-display text-sm font-bold text-[var(--text-primary)] mb-1">{popup.title}</h2>
             <p className="text-xs text-[var(--text-muted)] mb-4">{popup.message}</p>
             <div className="flex justify-end">
               <button onClick={() => setPopup(null)} className="text-xs px-3 py-1.5 rounded bg-[var(--bg-elevated)] hover:bg-[var(--border-subtle)] border border-[var(--border-default)] text-[var(--text-primary)] transition-colors">

@@ -3,12 +3,12 @@
 import { useState } from 'react';
 
 export const TAG_CONFIG = {
-  dsa:      { label: 'DSA',          color: 'bg-[#f781661a] text-[#f78166] border-[#f7816633]' },
-  da:       { label: 'Data Analyst', color: 'bg-[#d2a8ff1a] text-[#d2a8ff] border-[#d2a8ff33]' },
-  genai:    { label: 'Gen AI',       color: 'bg-[#79c0ff1a] text-[#79c0ff] border-[#79c0ff33]' },
-  backend:  { label: 'Backend Web',  color: 'bg-[#56d3641a] text-[#56d364] border-[#56d36433]' },
-  core:     { label: 'Core',         color: 'bg-[#e3b3411a] text-[#e3b341] border-[#e3b34133]' },
-  aptitude: { label: 'Aptitude',     color: 'bg-[#ff7b721a] text-[#ff7b72] border-[#ff7b7233]' },
+  dsa:      { label: 'DSA',     pattern: 'tag-dsa' },
+  da:       { label: 'DA',      pattern: 'tag-da' },
+  genai:    { label: 'GenAI',   pattern: 'tag-genai' },
+  backend:  { label: 'Backend', pattern: 'tag-backend' },
+  core:     { label: 'Core',    pattern: 'tag-core' },
+  aptitude: { label: 'Apt',     pattern: 'tag-aptitude' },
 };
 
 const TAG_ORDER = ['dsa', 'da', 'genai', 'backend', 'core', 'aptitude'];
@@ -19,15 +19,6 @@ function formatDate(dateStr) {
   const d = new Date(dateStr + 'T00:00:00');
   return `${DAYS[d.getDay()]}, ${d.getDate()} ${MONTHS[d.getMonth()]}`;
 }
-
-const TAG_DOT_COLORS = {
-  dsa:      'bg-[#f78166]',
-  da:       'bg-[#d2a8ff]',
-  genai:    'bg-[#79c0ff]',
-  backend:  'bg-[#56d364]',
-  core:     'bg-[#e3b341]',
-  aptitude: 'bg-[#ff7b72]',
-};
 
 export default function DayCard({ day, isToday, expanded, isAdmin, onToggleExpand, onAddTopic, onToggleTopic, onDeleteTopic, onEditTopic, onUpdateTag, onAddNote }) {
   const [newTopic, setNewTopic] = useState('');
@@ -58,149 +49,155 @@ export default function DayCard({ day, isToday, expanded, isAdmin, onToggleExpan
   const presentTags = TAG_ORDER.filter(tag => day.topics.some(t => t.tag === tag));
 
   return (
-    <div className={`border rounded-lg transition-colors ${
-      isToday  ? 'border-[var(--accent-blue)] bg-[var(--bg-surface)]'
-      : allDone ? 'border-[var(--accent-green)] bg-[var(--bg-base)]'
+    <div className={`flex border rounded-md transition-colors overflow-hidden ${
+      isToday  ? 'border-[var(--text-primary)] bg-[var(--bg-surface)]'
+      : allDone ? 'border-[var(--border-strong)] bg-[var(--bg-base)]'
       : 'border-[var(--border-subtle)] bg-[var(--bg-base)] hover:border-[var(--border-default)]'
     }`}>
-      {/* Header */}
-      <button onClick={onToggleExpand} className="w-full flex items-center gap-3 px-4 py-3 text-left">
-        <span className={`text-xs font-bold w-8 h-8 flex items-center justify-center rounded border shrink-0 ${
-          isToday  ? 'border-[var(--accent-blue)] text-[var(--accent-blue)]'
-          : allDone ? 'border-[var(--accent-green)] text-[var(--accent-green-text)]'
-          : isPast && totalTopics === 0 ? 'border-[var(--border-subtle)] text-[var(--text-faint)]'
-          : 'border-[var(--border-subtle)] text-[var(--text-muted)]'
-        }`}>
-          {day.id}
+      {/* Stub: day index */}
+      <div className={`w-14 sm:w-16 shrink-0 flex flex-col items-center justify-center gap-1 py-3 ${isToday ? 'ink-fill' : ''}`}>
+        <span className="font-display text-lg font-bold leading-none">{String(day.id).padStart(2, '0')}</span>
+        <span className={`text-[9px] uppercase tracking-widest ${isToday ? 'opacity-70' : 'text-[var(--text-faint)]'}`}>
+          {allDone ? 'done' : isPast && totalTopics === 0 ? '—' : 'day'}
         </span>
+      </div>
+      <div className="stub-divider" />
 
-        <span className={`text-sm flex-1 ${isToday ? 'text-[var(--accent-blue)] font-semibold' : 'text-[var(--text-muted)]'}`}>
-          {formatDate(day.date)}
-          {isToday && <span className="ml-2 text-[10px] uppercase tracking-widest text-[var(--accent-blue)]">today</span>}
-        </span>
+      {/* Body */}
+      <div className="flex-1 min-w-0">
+        <button onClick={onToggleExpand} className="w-full flex items-center gap-3 px-4 py-3 text-left">
+          <span className={`text-sm flex-1 truncate ${isToday ? 'text-[var(--text-primary)] font-semibold' : 'text-[var(--text-muted)]'}`}>
+            {formatDate(day.date)}
+            {isToday && <span className="ml-2 text-[9px] uppercase tracking-widest border border-[var(--border-strong)] rounded px-1 py-0.5 align-middle">today</span>}
+          </span>
 
-        {totalTopics > 0 && (
-          <span className="text-xs text-[var(--text-muted)] hidden sm:inline">{doneTopics}/{totalTopics}</span>
-        )}
+          {totalTopics > 0 && (
+            <span className="text-xs text-[var(--text-faint)] hidden sm:inline">{doneTopics}/{totalTopics}</span>
+          )}
 
-        <div className="flex gap-1">
-          {presentTags.map(tag => <span key={tag} className={`w-1.5 h-1.5 rounded-full ${TAG_DOT_COLORS[tag]}`} />)}
-        </div>
-
-        {totalTopics > 0 && (
-          <div className="w-16 h-1 bg-[var(--bg-elevated)] rounded-full overflow-hidden shrink-0">
-            <div
-              className={`h-full rounded-full transition-all ${allDone ? 'bg-[var(--accent-green)]' : 'bg-[var(--accent-blue)]'}`}
-              style={{ width: `${(doneTopics / totalTopics) * 100}%` }}
-            />
-          </div>
-        )}
-
-        <span className={`text-[var(--text-faint)] text-xs transition-transform ${expanded ? 'rotate-180' : ''}`}>▾</span>
-      </button>
-
-      {/* Expanded */}
-      {expanded && (
-        <div className="px-4 pb-4 space-y-3 border-t border-[var(--border-subtle)] pt-3">
-          <div className="space-y-1.5">
-            {day.topics.length === 0 && <p className="text-xs text-[var(--text-faint)] italic">No topics yet.</p>}
-            {day.topics.map(topic => (
-              <div key={topic.id} className={`flex items-center gap-2 group rounded px-2 py-1.5 transition-colors ${
-                topic.done ? 'bg-[var(--bg-base)]' : 'bg-[var(--bg-surface)]'
-              }`}>
-                <button
-                  onClick={() => isAdmin && onToggleTopic(day.id, topic.id)}
-                  disabled={!isAdmin}
-                  className={`w-4 h-4 rounded border flex items-center justify-center shrink-0 transition-colors ${
-                    topic.done ? 'bg-[var(--accent-green)] border-[var(--accent-green)]' : 'border-[var(--border-default)]'
-                  } ${isAdmin ? 'hover:border-[var(--accent-blue)] cursor-pointer' : 'cursor-default opacity-80'}`}
-                >
-                  {topic.done && <span className="text-white text-[10px]">✓</span>}
-                </button>
-
-                {isAdmin && editingTopicId === topic.id ? (
-                  <input
-                    type="text" autoFocus value={editTopicText}
-                    onChange={e => setEditTopicText(e.target.value)}
-                    onKeyDown={e => { if (e.key === 'Enter') saveEditTopic(topic.id); if (e.key === 'Escape') cancelEditTopic(); }}
-                    onBlur={() => saveEditTopic(topic.id)}
-                    className="flex-1 bg-[var(--bg-base)] border border-[var(--accent-blue)] rounded px-2 py-0.5 text-sm text-[var(--text-primary)] focus:outline-none"
-                  />
-                ) : (
-                  <span
-                    onDoubleClick={() => isAdmin && startEditTopic(topic)}
-                    className={`flex-1 text-sm transition-colors ${isAdmin ? 'cursor-text' : ''} ${
-                      topic.done ? 'text-[var(--text-muted)]' : 'text-[var(--text-primary)]'
-                    }`}
-                  >
-                    {topic.text}
-                  </span>
-                )}
-
-                {isAdmin && editingTopicId !== topic.id && (
-                  <button onClick={() => startEditTopic(topic)} className="text-[var(--text-faint)] hover:text-[var(--accent-blue)] text-xs opacity-0 group-hover:opacity-100 transition-opacity" title="Edit topic">
-                    ✎
-                  </button>
-                )}
-
-                {isAdmin ? (
-                  <button onClick={() => onUpdateTag(day.id, topic.id, cycleTag(topic.tag))} className={`text-[10px] px-1.5 py-0.5 rounded border font-mono ${TAG_CONFIG[topic.tag].color}`} title="Click to cycle tag">
-                    {TAG_CONFIG[topic.tag].label}
-                  </button>
-                ) : (
-                  <span className={`text-[10px] px-1.5 py-0.5 rounded border font-mono ${TAG_CONFIG[topic.tag].color}`}>
-                    {TAG_CONFIG[topic.tag].label}
-                  </span>
-                )}
-
-                {isAdmin && (
-                  <button onClick={() => onDeleteTopic(day.id, topic.id)} className="text-[var(--text-faint)] hover:text-[#f78166] text-xs opacity-0 group-hover:opacity-100 transition-opacity">
-                    ✕
-                  </button>
-                )}
-              </div>
-            ))}
+          <div className="flex gap-1.5 flex-wrap justify-end">
+            {presentTags.map(tag => <span key={tag} className="text-[9px] uppercase tracking-wide text-[var(--text-faint)]">{TAG_CONFIG[tag].label}</span>)}
           </div>
 
-          {isAdmin && (
-            <div className="flex gap-2">
-              <select
-                value={newTag} onChange={e => setNewTag(e.target.value)}
-                className="bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded px-2 text-xs text-[var(--text-muted)] focus:outline-none focus:border-[var(--accent-blue)] shrink-0"
-              >
-                {TAG_ORDER.map(tag => <option key={tag} value={tag}>{TAG_CONFIG[tag].label}</option>)}
-              </select>
-              <input
-                type="text" placeholder="Add topic..." value={newTopic}
-                onChange={e => setNewTopic(e.target.value)}
-                onKeyDown={e => e.key === 'Enter' && handleAdd()}
-                className="flex-1 bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded px-3 py-1.5 text-xs text-[var(--text-primary)] placeholder-[var(--text-faint)] focus:outline-none focus:border-[var(--accent-blue)] transition-colors"
+          {totalTopics > 0 && (
+            <div className="w-16 h-1 bg-[var(--bg-elevated)] rounded-full overflow-hidden shrink-0">
+              <div
+                className={`h-full rounded-full transition-all ${allDone ? 'bg-[var(--text-primary)]' : 'bg-[var(--text-muted)]'}`}
+                style={{ width: `${(doneTopics / totalTopics) * 100}%` }}
               />
-              <button onClick={handleAdd} className="bg-[var(--bg-elevated)] hover:bg-[var(--border-subtle)] border border-[var(--border-default)] rounded px-3 py-1.5 text-xs text-[var(--text-primary)] transition-colors shrink-0">
-                + Add
-              </button>
             </div>
           )}
 
-          <div>
-            {isAdmin ? (
-              editingNote ? (
-                <textarea
-                  autoFocus value={noteText} onChange={e => setNoteText(e.target.value)} onBlur={handleNoteBlur}
-                  placeholder="Day notes, links, or reflections..." rows={2}
-                  className="w-full bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded px-3 py-2 text-xs text-[var(--text-primary)] placeholder-[var(--text-faint)] focus:outline-none focus:border-[var(--accent-blue)] transition-colors resize-none"
+          <span className={`text-[var(--text-faint)] text-xs transition-transform ${expanded ? 'rotate-180' : ''}`}>▾</span>
+        </button>
+
+        {/* Expanded */}
+        {expanded && (
+          <div className="px-4 pb-4 space-y-3 border-t border-[var(--border-subtle)] pt-3">
+            <div className="space-y-1.5">
+              {day.topics.length === 0 && <p className="text-xs text-[var(--text-faint)] italic">No topics yet.</p>}
+              {day.topics.map(topic => (
+                <div key={topic.id} className={`flex items-center gap-2 group rounded px-2 py-1.5 border transition-colors ${
+                  topic.done ? 'bg-[var(--accent-done)]/10 border-[var(--accent-done)]/40' : 'bg-[var(--bg-surface)] border-transparent'
+                }`}>
+                  <button
+                    onClick={() => isAdmin && onToggleTopic(day.id, topic.id)}
+                    disabled={!isAdmin}
+                    className={`w-4 h-4 rounded border flex items-center justify-center shrink-0 transition-colors ${
+                      topic.done ? 'done-fill' : 'border-[var(--border-default)]'
+                    } ${isAdmin ? 'hover:border-[var(--text-primary)] cursor-pointer' : 'cursor-default opacity-80'}`}
+                  >
+                    {topic.done && (
+                      <svg viewBox="0 0 16 16" className="w-2.5 h-2.5" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="3,8.5 6.5,12 13,4" />
+                      </svg>
+                    )}
+                  </button>
+
+                  {isAdmin && editingTopicId === topic.id ? (
+                    <input
+                      type="text" autoFocus value={editTopicText}
+                      onChange={e => setEditTopicText(e.target.value)}
+                      onKeyDown={e => { if (e.key === 'Enter') saveEditTopic(topic.id); if (e.key === 'Escape') cancelEditTopic(); }}
+                      onBlur={() => saveEditTopic(topic.id)}
+                      className="flex-1 bg-[var(--bg-base)] border border-[var(--text-primary)] rounded px-2 py-0.5 text-sm text-[var(--text-primary)] focus:outline-none"
+                    />
+                  ) : (
+                    <span
+                      onDoubleClick={() => isAdmin && startEditTopic(topic)}
+                      className={`flex-1 text-sm transition-colors ${isAdmin ? 'cursor-text' : ''} ${
+                        topic.done ? 'text-[var(--accent-done-text)]' : 'text-[var(--text-primary)]'
+                      }`}
+                    >
+                      {topic.text}
+                    </span>
+                  )}
+
+                  {isAdmin && editingTopicId !== topic.id && (
+                    <button onClick={() => startEditTopic(topic)} className="text-[var(--text-faint)] hover:text-[var(--text-primary)] text-xs opacity-0 group-hover:opacity-100 transition-opacity" title="Edit topic">
+                      ✎
+                    </button>
+                  )}
+
+                  {isAdmin ? (
+                    <button onClick={() => onUpdateTag(day.id, topic.id, cycleTag(topic.tag))} className="tag-chip hover:border-[var(--text-primary)] hover:text-[var(--text-primary)] transition-colors" title="Click to cycle tag">
+                      {TAG_CONFIG[topic.tag].label}
+                    </button>
+                  ) : (
+                    <span className="tag-chip">
+                      {TAG_CONFIG[topic.tag].label}
+                    </span>
+                  )}
+
+                  {isAdmin && (
+                    <button onClick={() => onDeleteTopic(day.id, topic.id)} className="text-[var(--text-faint)] hover:text-[var(--text-primary)] text-xs opacity-0 group-hover:opacity-100 transition-opacity">
+                      ✕
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            {isAdmin && (
+              <div className="flex gap-2">
+                <select
+                  value={newTag} onChange={e => setNewTag(e.target.value)}
+                  className="bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded px-2 text-xs text-[var(--text-muted)] focus:outline-none focus:border-[var(--text-primary)] shrink-0"
+                >
+                  {TAG_ORDER.map(tag => <option key={tag} value={tag}>{TAG_CONFIG[tag].label}</option>)}
+                </select>
+                <input
+                  type="text" placeholder="Add topic..." value={newTopic}
+                  onChange={e => setNewTopic(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && handleAdd()}
+                  className="flex-1 bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded px-3 py-1.5 text-xs text-[var(--text-primary)] placeholder-[var(--text-faint)] focus:outline-none focus:border-[var(--text-primary)] transition-colors"
                 />
-              ) : (
-                <button onClick={() => setEditingNote(true)} className="text-xs text-[var(--text-faint)] hover:text-[var(--text-muted)] transition-colors text-left w-full">
-                  {day.note ? <span className="text-[var(--text-muted)]">{day.note}</span> : '+ Add note'}
+                <button onClick={handleAdd} className="ink-fill rounded px-3 py-1.5 text-xs font-medium transition-opacity hover:opacity-85 shrink-0">
+                  + Add
                 </button>
-              )
-            ) : (
-              day.note && <p className="text-xs text-[var(--text-muted)]">{day.note}</p>
+              </div>
             )}
+
+            <div>
+              {isAdmin ? (
+                editingNote ? (
+                  <textarea
+                    autoFocus value={noteText} onChange={e => setNoteText(e.target.value)} onBlur={handleNoteBlur}
+                    placeholder="Day notes, links, or reflections..." rows={2}
+                    className="w-full bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded px-3 py-2 text-xs text-[var(--text-primary)] placeholder-[var(--text-faint)] focus:outline-none focus:border-[var(--text-primary)] transition-colors resize-none"
+                  />
+                ) : (
+                  <button onClick={() => setEditingNote(true)} className="text-xs text-[var(--text-faint)] hover:text-[var(--text-muted)] transition-colors text-left w-full">
+                    {day.note ? <span className="text-[var(--text-muted)]">{day.note}</span> : '+ Add note'}
+                  </button>
+                )
+              ) : (
+                day.note && <p className="text-xs text-[var(--text-muted)]">{day.note}</p>
+              )}
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }

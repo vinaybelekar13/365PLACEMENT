@@ -68,11 +68,11 @@ export default function RoleSection({
   return (
     <div className="mt-2">
       <div className="flex items-center justify-between mb-3">
-        <h2 className="text-sm font-bold text-[var(--accent-blue)] tracking-tight">Role-wise Prep</h2>
+        <h2 className="font-display text-sm font-bold text-[var(--text-primary)] tracking-tight uppercase">Role-wise Prep</h2>
       </div>
 
       {/* Role tabs */}
-      <div className="flex gap-2 flex-wrap items-center mb-4">
+      <div className="flex gap-2 flex-wrap items-center mb-4 border-b border-[var(--border-subtle)] pb-3">
         {roles.map(role => {
           const total = role.topics.length;
           const done = role.topics.filter(t => t.done).length;
@@ -84,23 +84,23 @@ export default function RoleSection({
               onClick={() => setActiveRoleId(role.id)}
               className={`group relative text-xs px-3 py-1.5 rounded border transition-colors flex items-center gap-2 ${
                 active
-                  ? 'bg-[var(--accent-blue)] border-[var(--accent-blue)] text-white'
+                  ? 'ink-fill border-[var(--text-primary)]'
                   : allDone
-                    ? 'bg-[var(--bg-surface)] border-[var(--accent-green)] text-[var(--accent-green-text)]'
+                    ? 'bg-[var(--bg-surface)] border-[var(--border-strong)] text-[var(--text-primary)]'
                     : 'bg-[var(--bg-surface)] border-[var(--border-subtle)] text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:border-[var(--border-default)]'
               }`}
             >
               {allDone && <span>✓</span>}
               {role.name}
               {total > 0 && (
-                <span className={active ? 'text-white/80' : allDone ? 'text-[var(--accent-green-text)]/80' : 'text-[var(--text-faint)]'}>
+                <span className={active ? 'opacity-70' : allDone ? 'text-[var(--text-muted)]' : 'text-[var(--text-faint)]'}>
                   {done}/{total}
                 </span>
               )}
               {isAdmin && (
                 <span
                   onClick={(e) => { e.stopPropagation(); requestDeleteRole(role); }}
-                  className={`opacity-0 group-hover:opacity-100 transition-opacity ${active ? 'text-white/80 hover:text-white' : 'text-[var(--text-faint)] hover:text-[#f78166]'}`}
+                  className={`opacity-0 group-hover:opacity-100 transition-opacity ${active ? 'hover:opacity-60' : 'text-[var(--text-faint)] hover:text-[var(--text-primary)]'}`}
                 >
                   ✕
                 </span>
@@ -115,7 +115,7 @@ export default function RoleSection({
               type="text" placeholder="New role (e.g. Backend)" value={newRoleName}
               onChange={e => setNewRoleName(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && handleAddRole()}
-              className="bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded px-2 py-1.5 text-xs text-[var(--text-primary)] placeholder-[var(--text-faint)] focus:outline-none focus:border-[var(--accent-blue)] w-40"
+              className="bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded px-2 py-1.5 text-xs text-[var(--text-primary)] placeholder-[var(--text-faint)] focus:outline-none focus:border-[var(--text-primary)] w-40"
             />
             <button
               onClick={handleAddRole}
@@ -128,21 +128,21 @@ export default function RoleSection({
       </div>
 
       {!activeRole && (
-        <div className="bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-lg px-4 py-6 text-center text-xs text-[var(--text-faint)] italic">
+        <div className="bg-[var(--bg-surface)] border border-dashed border-[var(--border-default)] rounded-lg px-4 py-6 text-center text-xs text-[var(--text-faint)] italic">
           No roles yet. {isAdmin ? 'Add one above to start tracking role-specific interview topics.' : ''}
         </div>
       )}
 
       {activeRole && (
         <div className={`border rounded-lg bg-[var(--bg-base)] p-4 transition-colors ${
-          activeAllDone ? 'border-[var(--accent-green)]' : 'border-[var(--border-subtle)]'
+          activeAllDone ? 'border-[var(--border-strong)]' : 'border-[var(--border-subtle)]'
         }`}>
           {/* Completed banner */}
           {activeAllDone && (
-            <div className="mb-3 bg-[var(--accent-green)]/10 border border-[var(--accent-green)] rounded-lg px-3 py-2 flex items-center gap-2">
-              <span className="text-[var(--accent-green-text)] text-sm">✓</span>
-              <span className="text-xs text-[var(--accent-green-text)] font-semibold">
-                All {activeTotal} topics done for {activeRole.name} 🎉
+            <div className="mb-3 border border-[var(--border-strong)] rounded-lg px-3 py-2 flex items-center gap-2">
+              <span className="text-[var(--text-primary)] text-sm">✓</span>
+              <span className="text-xs text-[var(--text-primary)] font-semibold">
+                All {activeTotal} topics done for {activeRole.name}
               </span>
             </div>
           )}
@@ -152,13 +152,13 @@ export default function RoleSection({
             <div className="mb-3">
               <div className="flex justify-between text-xs text-[var(--text-muted)] mb-1">
                 <span>Progress</span>
-                <span className={activeAllDone ? 'text-[var(--accent-green-text)]' : 'text-[var(--text-primary)]'}>
+                <span className="text-[var(--text-primary)]">
                   {activeDone}/{activeTotal} &nbsp;·&nbsp; {Math.round((activeDone / activeTotal) * 100)}%
                 </span>
               </div>
               <div className="w-full h-1.5 bg-[var(--bg-elevated)] rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-[var(--accent-green)] rounded-full transition-all duration-500"
+                  className="h-full bg-[var(--text-primary)] rounded-full transition-all duration-500"
                   style={{ width: `${Math.round((activeDone / activeTotal) * 100)}%` }}
                 />
               </div>
@@ -172,18 +172,22 @@ export default function RoleSection({
             {activeRole.topics.map(topic => (
               <div
                 key={topic.id}
-                className={`flex items-center gap-2 group rounded px-2 py-1.5 transition-colors ${
-                  topic.done ? 'bg-[var(--bg-base)]' : 'bg-[var(--bg-surface)]'
+                className={`flex items-center gap-2 group rounded px-2 py-1.5 border transition-colors ${
+                  topic.done ? 'bg-[var(--accent-done)]/10 border-[var(--accent-done)]/40' : 'bg-[var(--bg-surface)] border-transparent'
                 }`}
               >
                 <button
                   onClick={() => isAdmin && onToggleTopic(activeRole.id, topic.id)}
                   disabled={!isAdmin}
                   className={`w-4 h-4 rounded border flex items-center justify-center shrink-0 transition-colors ${
-                    topic.done ? 'bg-[var(--accent-green)] border-[var(--accent-green)]' : 'border-[var(--border-default)]'
-                  } ${isAdmin ? 'hover:border-[var(--accent-blue)] cursor-pointer' : 'cursor-default opacity-80'}`}
+                    topic.done ? 'done-fill' : 'border-[var(--border-default)]'
+                  } ${isAdmin ? 'hover:border-[var(--text-primary)] cursor-pointer' : 'cursor-default opacity-80'}`}
                 >
-                  {topic.done && <span className="text-white text-[10px]">✓</span>}
+                  {topic.done && (
+                    <svg viewBox="0 0 16 16" className="w-2.5 h-2.5" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="3,8.5 6.5,12 13,4" />
+                    </svg>
+                  )}
                 </button>
 
                 {isAdmin && editingTopicId === topic.id ? (
@@ -192,13 +196,13 @@ export default function RoleSection({
                     onChange={e => setEditText(e.target.value)}
                     onKeyDown={e => { if (e.key === 'Enter') saveEdit(topic.id); if (e.key === 'Escape') cancelEdit(); }}
                     onBlur={() => saveEdit(topic.id)}
-                    className="flex-1 bg-[var(--bg-base)] border border-[var(--accent-blue)] rounded px-2 py-0.5 text-sm text-[var(--text-primary)] focus:outline-none"
+                    className="flex-1 bg-[var(--bg-base)] border border-[var(--text-primary)] rounded px-2 py-0.5 text-sm text-[var(--text-primary)] focus:outline-none"
                   />
                 ) : (
                   <span
                     onDoubleClick={() => isAdmin && startEdit(topic)}
                     className={`flex-1 text-sm transition-colors ${isAdmin ? 'cursor-text' : ''} ${
-                      topic.done ? 'text-[var(--text-muted)]' : 'text-[var(--text-primary)]'
+                      topic.done ? 'text-[var(--accent-done-text)]' : 'text-[var(--text-primary)]'
                     }`}
                   >
                     {topic.text}
@@ -206,19 +210,19 @@ export default function RoleSection({
                 )}
 
                 {topic.done && (
-                  <span className="text-[10px] px-1.5 py-0.5 rounded border border-[var(--accent-green)] text-[var(--accent-green-text)] font-mono shrink-0">
+                  <span className="text-[10px] px-1.5 py-0.5 rounded border border-[var(--border-strong)] text-[var(--text-primary)] font-mono shrink-0">
                     Done
                   </span>
                 )}
 
                 {isAdmin && editingTopicId !== topic.id && (
-                  <button onClick={() => startEdit(topic)} className="text-[var(--text-faint)] hover:text-[var(--accent-blue)] text-xs opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button onClick={() => startEdit(topic)} className="text-[var(--text-faint)] hover:text-[var(--text-primary)] text-xs opacity-0 group-hover:opacity-100 transition-opacity">
                     ✎
                   </button>
                 )}
 
                 {isAdmin && (
-                  <button onClick={() => requestDeleteTopic(activeRole.id, topic)} className="text-[var(--text-faint)] hover:text-[#f78166] text-xs opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button onClick={() => requestDeleteTopic(activeRole.id, topic)} className="text-[var(--text-faint)] hover:text-[var(--text-primary)] text-xs opacity-0 group-hover:opacity-100 transition-opacity">
                     ✕
                   </button>
                 )}
@@ -232,9 +236,9 @@ export default function RoleSection({
                 type="text" placeholder="Add interview question / topic..." value={newTopic}
                 onChange={e => setNewTopic(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && handleAddTopic()}
-                className="flex-1 bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded px-3 py-1.5 text-xs text-[var(--text-primary)] placeholder-[var(--text-faint)] focus:outline-none focus:border-[var(--accent-blue)] transition-colors"
+                className="flex-1 bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded px-3 py-1.5 text-xs text-[var(--text-primary)] placeholder-[var(--text-faint)] focus:outline-none focus:border-[var(--text-primary)] transition-colors"
               />
-              <button onClick={handleAddTopic} className="bg-[var(--bg-elevated)] hover:bg-[var(--border-subtle)] border border-[var(--border-default)] rounded px-3 py-1.5 text-xs text-[var(--text-primary)] transition-colors shrink-0">
+              <button onClick={handleAddTopic} className="ink-fill rounded px-3 py-1.5 text-xs font-medium transition-opacity hover:opacity-85 shrink-0">
                 + Add
               </button>
             </div>
@@ -245,14 +249,14 @@ export default function RoleSection({
       {/* Delete role confirmation modal */}
       {confirmDeleteRole && (
         <div
-          className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 px-4"
+          className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 px-4"
           onClick={() => setConfirmDeleteRole(null)}
         >
           <div
-            className="bg-[var(--bg-surface)] border border-[var(--border-default)] rounded-lg p-5 w-full max-w-sm shadow-2xl"
+            className="bg-[var(--bg-surface)] border border-[var(--border-strong)] rounded-lg p-5 w-full max-w-sm shadow-2xl"
             onClick={e => e.stopPropagation()}
           >
-            <h2 className="text-sm font-bold text-[#f78166] mb-1">⚠ Delete "{confirmDeleteRole.name}"?</h2>
+            <h2 className="text-sm font-bold text-[var(--text-primary)] mb-1">Delete "{confirmDeleteRole.name}"?</h2>
             <p className="text-xs text-[var(--text-muted)] mb-4">
               This will permanently delete this role{confirmDeleteRole.topicCount > 0
                 ? <> and all <span className="text-[var(--text-primary)] font-semibold">{confirmDeleteRole.topicCount}</span> topic{confirmDeleteRole.topicCount === 1 ? '' : 's'} under it</>
@@ -267,7 +271,7 @@ export default function RoleSection({
               </button>
               <button
                 onClick={confirmDeleteRoleAction}
-                className="text-xs px-3 py-1.5 rounded bg-[#f78166] hover:opacity-90 text-white transition-colors"
+                className="text-xs px-3 py-1.5 rounded ink-fill hover:opacity-85 transition-opacity"
               >
                 Delete role
               </button>
@@ -279,14 +283,14 @@ export default function RoleSection({
       {/* Delete topic confirmation modal */}
       {confirmDeleteTopic && (
         <div
-          className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 px-4"
+          className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 px-4"
           onClick={() => setConfirmDeleteTopic(null)}
         >
           <div
-            className="bg-[var(--bg-surface)] border border-[var(--border-default)] rounded-lg p-5 w-full max-w-sm shadow-2xl"
+            className="bg-[var(--bg-surface)] border border-[var(--border-strong)] rounded-lg p-5 w-full max-w-sm shadow-2xl"
             onClick={e => e.stopPropagation()}
           >
-            <h2 className="text-sm font-bold text-[#f78166] mb-1">⚠ Delete this topic?</h2>
+            <h2 className="text-sm font-bold text-[var(--text-primary)] mb-1">Delete this topic?</h2>
             <p className="text-xs text-[var(--text-muted)] mb-4">
               "<span className="text-[var(--text-primary)]">{confirmDeleteTopic.text}</span>" will be permanently removed. This action cannot be undone.
             </p>
@@ -299,7 +303,7 @@ export default function RoleSection({
               </button>
               <button
                 onClick={confirmDeleteTopicAction}
-                className="text-xs px-3 py-1.5 rounded bg-[#f78166] hover:opacity-90 text-white transition-colors"
+                className="text-xs px-3 py-1.5 rounded ink-fill hover:opacity-85 transition-opacity"
               >
                 Delete topic
               </button>
