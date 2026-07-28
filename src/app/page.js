@@ -183,15 +183,22 @@ export default function Home() {
       </main>
     );
   }
+  const totalTopics = days.reduce(
+  (acc, day) => acc + day.topics.length,
+  0
+);
 
-  const totalTopics    = days.reduce((a, d) => a + d.topics.length, 0);
-  const doneTopics     = days.reduce((a, d) => a + d.topics.filter(t => t.done).length, 0);
+const doneTopics = days.reduce(
+  (acc, day) => acc + day.topics.filter(t => t.done).length,
+  0
+);
+
   const dsaTopics      = days.reduce((a, d) => a + d.topics.filter(t => t.tag === 'dsa').length, 0);
-  const daTopics       = days.reduce((a, d) => a + d.topics.filter(t => t.tag === 'da').length, 0);
-  const genaiTopics    = days.reduce((a, d) => a + d.topics.filter(t => t.tag === 'genai').length, 0);
-  const backendTopics  = days.reduce((a, d) => a + d.topics.filter(t => t.tag === 'backend').length, 0);
-  const coreTopics     = days.reduce((a, d) => a + d.topics.filter(t => t.tag === 'core').length, 0);
-  const aptitudeTopics = days.reduce((a, d) => a + d.topics.filter(t => t.tag === 'aptitude').length, 0);
+const webTopics      = days.reduce((a, d) => a + d.topics.filter(t => t.tag === 'web').length, 0);
+const mlTopics       = days.reduce((a, d) => a + d.topics.filter(t => t.tag === 'ml').length, 0);
+const collegeTopics  = days.reduce((a, d) => a + d.topics.filter(t => t.tag === 'college').length, 0);
+const aptitudeTopics = days.reduce((a, d) => a + d.topics.filter(t => t.tag === 'aptitude').length, 0);
+const gymTopics      = days.reduce((a, d) => a + d.topics.filter(t => t.tag === 'gym').length, 0);
 
   const today = new Date().toISOString().split('T')[0];
   const daysPassed = days.filter(d => d.date < today).length;
@@ -206,13 +213,13 @@ export default function Home() {
   });
 
   const LEGEND = [
-    { label: 'DSA',      pattern: 'tag-dsa' },
-    { label: 'DA',       pattern: 'tag-da' },
-    { label: 'GenAI',    pattern: 'tag-genai' },
-    { label: 'Backend',  pattern: 'tag-backend' },
-    { label: 'Core',     pattern: 'tag-core' },
-    { label: 'Aptitude', pattern: 'tag-aptitude' },
-  ];
+  { label: 'DSA', pattern: 'tag-dsa' },
+  { label: 'Web Development', pattern: 'tag-web' },
+  { label: 'Machine Learning', pattern: 'tag-ml' },
+  { label: 'College Study', pattern: 'tag-college' },
+  { label: 'Aptitude', pattern: 'tag-aptitude' },
+  { label: 'Gym', pattern: 'tag-gym' },
+];
 
   return (
     <main className="min-h-screen bg-[var(--bg-base)] text-[var(--text-primary)] font-mono">
@@ -222,8 +229,8 @@ export default function Home() {
             
             <h1 className="font-display text-2xl font-bold tracking-tight text-[var(--text-primary)] mt-1">Road to Offer</h1>
             <p className="text-xs text-[var(--text-muted)] mt-1">
-              14 Jun → 28 Jul 2026 &nbsp;·&nbsp; 45 days &nbsp;·&nbsp; Day {Math.min(daysPassed + 1, 45)} of 45
-            </p>
+  365-Day Placement Roadmap &nbsp;·&nbsp; Day {Math.min(daysPassed + 1, 365)} of 365
+</p>
           </div>
           <div className="flex gap-2 flex-wrap items-center">
             <div className="flex gap-1.5 flex-wrap items-center border border-[var(--border-subtle)] rounded px-2 py-1.5 bg-[var(--bg-surface)]">
@@ -263,10 +270,17 @@ export default function Home() {
 
       <div className="max-w-6xl mx-auto px-4 sm:px-8 py-6">
         <StatsBar
-          total={totalTopics} done={doneTopics} dsa={dsaTopics} da={daTopics}
-          genai={genaiTopics} backend={backendTopics} core={coreTopics}
-          aptitude={aptitudeTopics} daysPassed={daysPassed}
-        />
+  total={totalTopics}
+  done={doneTopics}
+  dsa={dsaTopics}
+  web={webTopics}
+  ml={mlTopics}
+  college={collegeTopics}
+  aptitude={aptitudeTopics}
+  gym={gymTopics}
+  daysPassed={daysPassed}
+  totalDays={days.length}
+/>
         <div className="mt-5">
           <FilterBar filter={filter} setFilter={setFilter} search={search} setSearch={setSearch} />
         </div>
@@ -289,7 +303,7 @@ export default function Home() {
             )}
 
             <div className="mt-5 space-y-2">
-              {[...filteredDays].reverse().map(day => (
+              {[...filteredDays].map(day => (
                 <DayCard
                   key={day.id} day={day} isToday={day.date === today}
                   expanded={expandedDay === day.id} isAdmin={isAdmin}

@@ -1,18 +1,41 @@
 'use client';
 
 const CATEGORIES = [
-  { key: 'dsa',      label: 'DSA',          pattern: 'tag-dsa' },
-  { key: 'da',       label: 'Data Analyst', pattern: 'tag-da' },
-  { key: 'genai',    label: 'Gen AI',       pattern: 'tag-genai' },
-  { key: 'backend',  label: 'Backend Web',  pattern: 'tag-backend' },
-  { key: 'core',     label: 'Core',         pattern: 'tag-core' },
-  { key: 'aptitude', label: 'Aptitude',     pattern: 'tag-aptitude' },
+  { key: 'dsa',       label: 'DSA',                pattern: 'tag-dsa' },
+  { key: 'web',       label: 'Web Development',    pattern: 'tag-web' },
+  { key: 'ml',        label: 'Machine Learning',   pattern: 'tag-ml' },
+  { key: 'college',   label: 'College Study',      pattern: 'tag-college' },
+  { key: 'aptitude',  label: 'Aptitude',           pattern: 'tag-aptitude' },
+  { key: 'gym',       label: 'Gym',                pattern: 'tag-gym' },
 ];
 
-export default function StatsBar({ total, done, dsa, da, genai, backend, core, aptitude, daysPassed }) {
+export default function StatsBar({
+  total,
+  done,
+  dsa,
+  web,
+  ml,
+  college,
+  aptitude,
+  gym,
+  daysPassed,
+  totalDays
+}) {
   const pct = total > 0 ? Math.round((done / total) * 100) : 0;
-  const dayPct = Math.round((Math.min(daysPassed, 45) / 45) * 100);
-  const values = { dsa, da, genai, backend, core, aptitude };
+
+  const dayPct =
+    totalDays > 0
+      ? Math.round((Math.min(daysPassed, totalDays) / totalDays) * 100)
+      : 0;
+
+  const values = {
+    dsa,
+    web,
+    ml,
+    college,
+    aptitude,
+    gym,
+  };
 
   return (
     <div className="border border-[var(--border-subtle)] rounded-lg bg-[var(--bg-surface)] overflow-hidden">
@@ -30,7 +53,9 @@ export default function StatsBar({ total, done, dsa, da, genai, backend, core, a
         <div className="p-4">
           <div className="flex justify-between text-xs text-[var(--text-muted)] mb-2">
             <span>Time elapsed</span>
-            <span className="text-[var(--text-primary)] font-semibold">{Math.min(daysPassed, 45)}/45 days &nbsp;·&nbsp; {dayPct}%</span>
+            <span className="text-[var(--text-primary)] font-semibold">
+  {Math.min(daysPassed, totalDays)}/{totalDays} days &nbsp;·&nbsp; {dayPct}%{Math.min(daysPassed, totalDays)}/{totalDays} days &nbsp;·&nbsp; {dayPct}%
+</span>
           </div>
           <div className="w-full h-1.5 bg-[var(--bg-elevated)] rounded-full overflow-hidden">
             <div className="h-full bg-[var(--border-strong)] rounded-full transition-all duration-500" style={{ width: `${dayPct}%` }} />

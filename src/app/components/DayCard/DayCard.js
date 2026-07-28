@@ -3,15 +3,40 @@
 import { useState } from 'react';
 
 export const TAG_CONFIG = {
-  dsa:      { label: 'DSA',     pattern: 'tag-dsa' },
-  da:       { label: 'DA',      pattern: 'tag-da' },
-  genai:    { label: 'GenAI',   pattern: 'tag-genai' },
-  backend:  { label: 'Backend', pattern: 'tag-backend' },
-  core:     { label: 'Core',    pattern: 'tag-core' },
-  aptitude: { label: 'Apt',     pattern: 'tag-aptitude' },
+  dsa: {
+    label: 'DSA',
+    pattern: 'tag-dsa',
+  },
+  web: {
+    label: 'Web Development',
+    pattern: 'tag-web',
+  },
+  ml: {
+    label: 'Machine Learning',
+    pattern: 'tag-ml',
+  },
+  college: {
+    label: 'College Study',
+    pattern: 'tag-college',
+  },
+  aptitude: {
+    label: 'Aptitude',
+    pattern: 'tag-aptitude',
+  },
+  gym: {
+    label: 'Gym',
+    pattern: 'tag-gym',
+  },
 };
 
-const TAG_ORDER = ['dsa', 'da', 'genai', 'backend', 'core', 'aptitude'];
+const TAG_ORDER = [
+  'dsa',
+  'web',
+  'ml',
+  'college',
+  'aptitude',
+  'gym',
+];
 const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
