@@ -227,7 +227,8 @@ const gymTopics      = days.reduce((a, d) => a + d.topics.filter(t => t.tag === 
         <div className="max-w-6xl mx-auto flex items-start justify-between flex-wrap gap-4">
           <div>
             
-            <h1 className="font-display text-2xl font-bold tracking-tight text-[var(--text-primary)] mt-1">Road to Offer</h1>
+            <h1 className="font-display text-2xl font-bold tracking-tight text-[var(--text-primary)] mt-1">Placement365
+Master DSA, Development & Placement Preparation</h1>
             <p className="text-xs text-[var(--text-muted)] mt-1">
   365-Day Placement Roadmap &nbsp;·&nbsp; Day {Math.min(daysPassed + 1, 365)} of 365
 </p>
