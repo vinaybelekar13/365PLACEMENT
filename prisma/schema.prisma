@@ -16,12 +16,12 @@ model Day {
 }
 
 model Topic {
-  id      Int     @id @default(autoincrement())
-  text    String
-  done    Boolean @default(false)
-  tag     String  @default("dsa")
-  dayId   Int
-  day     Day     @relation(fields: [dayId], references: [id], onDelete: Cascade)
+  id    Int     @id @default(autoincrement())
+  text  String
+  done  Boolean @default(false)
+  tag   String  @default("dsa")
+  dayId Int
+  day   Day     @relation(fields: [dayId], references: [id], onDelete: Cascade)
 }
 
 model Role {
