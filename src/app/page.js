@@ -184,31 +184,61 @@ export default function Home() {
     );
   }
   const totalTopics = days.reduce(
-  (acc, day) => acc + day.topics.length,
+  (acc, day) => acc + (day.topics?.length ?? 0),
   0
 );
 
 const doneTopics = days.reduce(
-  (acc, day) => acc + day.topics.filter(t => t.done).length,
+  (acc, day) =>
+    acc + (day.topics?.filter(t => t.done).length ?? 0),
   0
 );
 
-  const dsaTopics      = days.reduce((a, d) => a + d.topics.filter(t => t.tag === 'dsa').length, 0);
-const webTopics      = days.reduce((a, d) => a + d.topics.filter(t => t.tag === 'web').length, 0);
-const mlTopics       = days.reduce((a, d) => a + d.topics.filter(t => t.tag === 'ml').length, 0);
-const collegeTopics  = days.reduce((a, d) => a + d.topics.filter(t => t.tag === 'college').length, 0);
-const aptitudeTopics = days.reduce((a, d) => a + d.topics.filter(t => t.tag === 'aptitude').length, 0);
-const gymTopics      = days.reduce((a, d) => a + d.topics.filter(t => t.tag === 'gym').length, 0);
+  const dsaTopics = days.reduce(
+  (a, d) => a + (d.topics?.filter(t => t.tag === "dsa").length ?? 0),
+  0
+);
 
+const webTopics = days.reduce(
+  (a, d) => a + (d.topics?.filter(t => t.tag === "web").length ?? 0),
+  0
+);
+
+const mlTopics = days.reduce(
+  (a, d) => a + (d.topics?.filter(t => t.tag === "ml").length ?? 0),
+  0
+);
+
+const collegeTopics = days.reduce(
+  (a, d) => a + (d.topics?.filter(t => t.tag === "college").length ?? 0),
+  0
+);
+
+const aptitudeTopics = days.reduce(
+  (a, d) => a + (d.topics?.filter(t => t.tag === "aptitude").length ?? 0),
+  0
+);
+
+const gymTopics = days.reduce(
+  (a, d) => a + (d.topics?.filter(t => t.tag === "gym").length ?? 0),
+  0
+);
   const today = new Date().toISOString().split('T')[0];
   const daysPassed = days.filter(d => d.date < today).length;
 
   const filteredDays = days.filter(d => {
-    const matchSearch = search ? d.topics.some(t => t.text.toLowerCase().includes(search.toLowerCase())) : true;
+    const matchSearch = search
+  ? (d.topics ?? []).some(t =>
+      t.text.toLowerCase().includes(search.toLowerCase())
+    )
+  : true;
     if (!matchSearch) return false;
-    if (filter === 'pending') return d.topics.some(t => !t.done);
+    if (filter === "pending")
+  return (d.topics ?? []).some(t => !t.done);
     if (filter === 'today')   return d.date === today;
-    if (filter === 'done')    return d.topics.length > 0 && d.topics.every(t => t.done);
+    if (filter === "done")
+  return (d.topics ?? []).length > 0 &&
+         (d.topics ?? []).every(t => t.done);
     return true;
   });
 

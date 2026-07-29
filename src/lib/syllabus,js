@@ -1,0 +1,23 @@
+import { prisma } from "@/lib/prisma";
+
+export async function getSubject(name) {
+  return prisma.subject.findUnique({
+    where: {
+      name,
+    },
+    include: {
+      sections: {
+        orderBy: {
+          title: "asc",
+        },
+        include: {
+          topics: {
+            orderBy: {
+              title: "asc",
+            },
+          },
+        },
+      },
+    },
+  });
+}
