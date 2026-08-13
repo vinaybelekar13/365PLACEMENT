@@ -1,0 +1,180 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ---------------------------------------------------------------------
+// ProjectProg data model
+//
+// A Challenge is an arbitrary-duration goal (e.g. "45-day DSA Sprint").
+// There is at most ONE active Challenge at a time. Each Challenge owns a
+// set of ChallengeDay rows (one per day of the challenge), and each
+// ChallengeDay owns a set of Tasks.
+//
+// Skills are user-defined (no fixed/built-in list). A Task is either a
+// "skill" task (tied to a Skill, contributes to that skill's progress)
+// or a "general" task (tied to a free-form category, never contributes
+// to skill progress).
+//
+// When a Challenge is completed, its full state — every day, every
+// task, every date, every completion — is copied into ChallengeHistory /
+// ChallengeHistoryDay / ChallengeHistoryTask (denormalized, immutable)
+// and the live Challenge is deleted. History is therefore never affected
+// by later renames/deletes of Skills.
+// ---------------------------------------------------------------------
+
+model Challenge {
+  id        Int            @id @default(autoincrement())
+  name      String
+  startDate String // "YYYY-MM-DD"
+  duration  Int // number of days
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  days      ChallengeDay[]
+}
+
+model ChallengeDay {
+  id          Int       @id @default(autoincrement())
+  dayNumber   Int
+  date        String // "YYYY-MM-DD"
+  note        String?   @default("")
+  challengeId Int
+  challenge   Challenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+  tasks       Task[]
+
+  @@unique([challengeId, dayNumber])
+  @@index([challengeId])
+}
+
+model Skill {
+  id    Int    @id @default(autoincrement())
+  name  String @unique
+  order Int    @default(0)
+  tasks Task[]
+}
+
+/// Free-form categories for "general" (non-skill) tasks — e.g. Personal,
+/// College, Health, Finance, Errands. Editable, not a fixed enum.
+model GeneralCategory {
+  id    Int    @id @default(autoincrement())
+  name  String @unique
+  order Int    @default(0)
+}
+
+model Task {
+  id             Int          @id @default(autoincrement())
+  text           String
+  done           Boolean      @default(false)
+  type           String       @default("general") // "skill" | "general"
+  order          Int          @default(0)
+  category       String?      @default("General") // used when type === "general"
+  completedAt    DateTime?
+  challengeDayId Int
+  challengeDay   ChallengeDay @relation(fields: [challengeDayId], references: [id], onDelete: Cascade)
+  skillId        Int?
+  skill          Skill?       @relation(fields: [skillId], references: [id], onDelete: SetNull)
+
+  @@index([challengeDayId])
+  @@index([skillId])
+}
+
+model Goal {
+  id    Int     @id @default(autoincrement())
+  text  String
+  done  Boolean @default(false)
+  order Int     @default(0)
+}
+
+/// Singleton row (id always 1) holding the one permanent Notes panel.
+model Note {
+  id      Int    @id @default(1)
+  content String @default("")
+}
+
+/// Singleton row (id always 1) holding LeetCode solve counts.
+model LeetCodeStats {
+  id     Int @id @default(1)
+  easy   Int @default(0)
+  medium Int @default(0)
+  hard   Int @default(0)
+}
+
+// ---------------------------------------------------------------------
+// Permanent, immutable archive of every completed challenge.
+// ---------------------------------------------------------------------
+
+model ChallengeHistory {
+  id             Int                   @id @default(autoincrement())
+  name           String
+  startDate      String
+  endDate        String
+  duration       Int
+  totalTasks     Int
+  completedTasks Int
+  completionPct  Int
+  archivedAt     DateTime              @default(now())
+  days           ChallengeHistoryDay[]
+}
+
+model ChallengeHistoryDay {
+  id                 Int                    @id @default(autoincrement())
+  dayNumber          Int
+  date               String
+  challengeHistoryId Int
+  challengeHistory   ChallengeHistory       @relation(fields: [challengeHistoryId], references: [id], onDelete: Cascade)
+  tasks              ChallengeHistoryTask[]
+
+  @@index([challengeHistoryId])
+}
+
+model ChallengeHistoryTask {
+  id                    Int                 @id @default(autoincrement())
+  text                  String
+  type                  String
+  skillName             String?
+  category              String?
+  done                  Boolean
+  completedAt           DateTime?
+  order                 Int                 @default(0)
+  challengeHistoryDayId Int
+  challengeHistoryDay   ChallengeHistoryDay @relation(fields: [challengeHistoryDayId], references: [id], onDelete: Cascade)
+
+  @@index([challengeHistoryDayId])
+}
+
+// ---------------------------------------------------------------------
+// My Diary — two independent journal systems, both sorted by
+// "most recently edited first" in the UI (updatedAt desc).
+// ---------------------------------------------------------------------
+
+/// Mistake Diary: "what did I get wrong, and in which module" — so it
+/// can be revisited later and not repeated.
+model MistakeDiaryEntry {
+  id        Int      @id @default(autoincrement())
+  date      String // "YYYY-MM-DD" — the day the mistake relates to
+  module    String // e.g. "MPMC", "VLSI" — free text, not a fixed list
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([updatedAt])
+}
+
+/// General Personal Diary: free-form journaling, optionally tagged with
+/// a title and/or category, independent of the Mistake Diary.
+model DiaryEntry {
+  id        Int      @id @default(autoincrement())
+  date      String // "YYYY-MM-DD"
+  title     String? // optional short title, e.g. "Reflection on today's study"
+  category  String? // optional free-text category
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([updatedAt])
+}
